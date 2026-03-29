@@ -25,7 +25,7 @@ app.use(
     secure: true,
   })
 );
-app.options('*', cors());
+app.options('/*', cors());
 
 /* Global middlewares */
 // Serving static files
@@ -93,7 +93,7 @@ app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
 
 // Error handling
-app.all('*', (req, res, next) => {
+app.all('/*', (req, res, next) => {
   res.status(404).json({
     status: 'fail',
     message: `${req.originalUrl} not found`,
