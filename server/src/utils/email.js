@@ -1,27 +1,30 @@
 const nodemailer = require('nodemailer');
-const nodemailerSendgrid = require('nodemailer-sendgrid');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async (options) => {
-  // Create a transporter
-  let transporter;
   if (process.env.NODE_ENV === 'production') {
-    transporter = nodemailer.createTransport(
-      nodemailerSendgrid({
-        apiKey: process.env.SENDGRID_API_KEY,
-      })
-    );
-  } else {
-    transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+    const msg = {
+      to: options.email,
+      from: `Natours Team <${process.env.EMAIL_FROM}>`,
+      subject: options.subject,
+      text: options.message,
+      html: options.html,
+    };
+    await sgMail.send(msg);
+    return;
   }
 
-  // Define email options
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    auth: {
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
   const emailOptions = {
     from: `Natours Team <${process.env.EMAIL_FROM}>`,
     to: options.email,
@@ -30,7 +33,6 @@ const sendEmail = async (options) => {
     html: options.html,
   };
 
-  // Send email
   await transporter.sendMail(emailOptions);
 };
 
